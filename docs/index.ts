@@ -9,18 +9,18 @@ let win: number = 0;
 let lose: number = 0;
 let dark: boolean = true;
 let easy: boolean = true;
-let easier: boolean = false;
-let was_easier: boolean = false;
+let easier: number = 0;
+let puzzleset_easier: number = 0;
 let allnums: number[] = [];
 const BASE = 16;
 const MAX_DIGITS = 2;
 const MAX_ANS = (BASE**MAX_DIGITS)-1;
 function refresh_nums(){
-    const interval = easier ? BASE : 1;
+    const interval = [1,16,10][easier];
     for(let i=0;i<=MAX_ANS;i += interval){
         allnums.push(i);
     }
-    was_easier = easier;
+    puzzleset_easier = easier;
 }
 function updstats(){
     let sstats = `+${win} -${lose}`;
@@ -42,12 +42,11 @@ function unixdash(conf: boolean,letter: string){
 function updconf(){
     setclass(document.body,"darkmode",dark);
     setclass(document.body,"easymode",easy);
-    conf.textContent = unixdash(!dark,"l")+unixdash(easy,"e")+unixdash(easier,"E");
-    if(easier !== was_easier){
+    conf.textContent = unixdash(!dark,"l")+unixdash(easy,"h")+(easier?`e${easier}`:"--");
+    if(easier !== puzzleset_easier){
         allnums = [];
         win = 0;
         lose = 0;
-        refresh_nums();
         newpuzzle();
     }
 }
@@ -56,7 +55,7 @@ function newpuzzle(){
     if(allnums.length===0){
         refresh_nums();
     }
-    num.textContent = (current_answer = allnums[Math.floor(Math.random()*allnums.length)]).toString(16).padStart(2,"0").toUpperCase();
+    num.textContent = (current_answer = allnums[Math.floor(Math.random()*allnums.length)]).toString(BASE).padStart(2,"0").toUpperCase();
     ttick.style.left = `${current_answer*100/MAX_ANS}%`;
 }
 newpuzzle();
@@ -70,7 +69,7 @@ addEventListener("keyup",(e) => {
         easy = !easy;
         updconf();
     }else if(e.key === "F4"){
-        easier = !easier;
+        easier = (easier+1)%3;
         updconf();
     }
 });
