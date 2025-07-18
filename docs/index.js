@@ -19,8 +19,11 @@ function refresh_nums() {
     }
 }
 function updstats() {
-    const wlr = lose ? win / lose : 1;
-    stats.textContent = `+${win} -${lose} (${wlr.toFixed(2)})`;
+    let sstats = `+${win} -${lose}`;
+    if (lose) {
+        sstats += ` (${(win / lose).toFixed(2)})`;
+    }
+    stats.textContent = sstats;
 }
 function setclass(e, c, on) {
     if (on) {
