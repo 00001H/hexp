@@ -7,5 +7,5 @@
     "strict": true,
     "skipDefaultLibCheck": true
   },
-  "include": ["src"]
+  "include": ["docs"]
 }
