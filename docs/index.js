@@ -1,7 +1,6 @@
 "use strict";
 const num = document.getElementById("num");
 const resp = document.getElementById("resp");
-resp.value = "";
 const stats = document.getElementById("stats");
 const conf = document.getElementById("conf");
 const ctick = document.getElementById("current");
@@ -11,12 +10,18 @@ let win = 0;
 let lose = 0;
 let dark = true;
 let easy = true;
-const allnums = [];
-const MAX_ANS = 255;
+let easier = false;
+let was_easier = false;
+let allnums = [];
+const BASE = 16;
+const MAX_DIGITS = 2;
+const MAX_ANS = (BASE ** MAX_DIGITS) - 1;
 function refresh_nums() {
-    for (let i = 0; i <= MAX_ANS; ++i) {
+    const interval = easier ? BASE : 1;
+    for (let i = 0; i <= MAX_ANS; i += interval) {
         allnums.push(i);
     }
+    was_easier = easier;
 }
 function updstats() {
     let sstats = `+${win} -${lose}`;
@@ -33,12 +38,23 @@ function setclass(e, c, on) {
         e.classList.remove(c);
     }
 }
+function unixdash(conf, letter) {
+    return conf ? letter : "-";
+}
 function updconf() {
     setclass(document.body, "darkmode", dark);
     setclass(document.body, "easymode", easy);
-    conf.textContent = (dark ? "-" : "l") + (easy ? "e" : "-");
+    conf.textContent = unixdash(!dark, "l") + unixdash(easy, "e") + unixdash(easier, "E");
+    if (easier !== was_easier) {
+        allnums = [];
+        win = 0;
+        lose = 0;
+        refresh_nums();
+        newpuzzle();
+    }
 }
 function newpuzzle() {
+    resp.value = "";
     if (allnums.length === 0) {
         refresh_nums();
     }
@@ -58,7 +74,8 @@ addEventListener("keyup", (e) => {
         updconf();
     }
     else if (e.key === "F4") {
-        resp.focus();
+        easier = !easier;
+        updconf();
     }
 });
 resp.addEventListener("input", () => {
@@ -81,7 +98,6 @@ resp.addEventListener("keyup", (e) => {
             ++win;
             updstats();
             newpuzzle();
-            resp.value = "";
         }
         else {
             ++lose;

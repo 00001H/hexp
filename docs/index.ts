@@ -1,6 +1,5 @@
 const num = document.getElementById("num") as HTMLLabelElement;
 const resp = document.getElementById("resp") as HTMLInputElement;
-resp.value = "";
 const stats = document.getElementById("stats") as HTMLLabelElement;
 const conf = document.getElementById("conf") as HTMLLabelElement;
 const ctick = document.getElementById("current") as HTMLElement;
@@ -10,10 +9,18 @@ let win: number = 0;
 let lose: number = 0;
 let dark: boolean = true;
 let easy: boolean = true;
-const allnums: number[] = [];
-const MAX_ANS = 255;
+let easier: boolean = false;
+let was_easier: boolean = false;
+let allnums: number[] = [];
+const BASE = 16;
+const MAX_DIGITS = 2;
+const MAX_ANS = (BASE**MAX_DIGITS)-1;
 function refresh_nums(){
-    for(let i=0;i<=MAX_ANS;++i){allnums.push(i);}
+    const interval = easier ? BASE : 1;
+    for(let i=0;i<=MAX_ANS;i += interval){
+        allnums.push(i);
+    }
+    was_easier = easier;
 }
 function updstats(){
     let sstats = `+${win} -${lose}`;
@@ -29,12 +36,23 @@ function setclass(e: HTMLElement,c: string,on: boolean){
         e.classList.remove(c);
     }
 }
+function unixdash(conf: boolean,letter: string){
+    return conf?letter:"-";
+}
 function updconf(){
     setclass(document.body,"darkmode",dark);
     setclass(document.body,"easymode",easy);
-    conf.textContent = (dark?"-":"l")+(easy?"e":"-");
+    conf.textContent = unixdash(!dark,"l")+unixdash(easy,"e")+unixdash(easier,"E");
+    if(easier !== was_easier){
+        allnums = [];
+        win = 0;
+        lose = 0;
+        refresh_nums();
+        newpuzzle();
+    }
 }
 function newpuzzle(){
+    resp.value = "";
     if(allnums.length===0){
         refresh_nums();
     }
@@ -52,7 +70,8 @@ addEventListener("keyup",(e) => {
         easy = !easy;
         updconf();
     }else if(e.key === "F4"){
-        resp.focus();
+        easier = !easier;
+        updconf();
     }
 });
 resp.addEventListener("input",() => {
@@ -73,7 +92,6 @@ resp.addEventListener("keyup",(e) => {
             ++win;
             updstats();
             newpuzzle();
-            resp.value = "";
         }else{
             ++lose;
             updstats();
