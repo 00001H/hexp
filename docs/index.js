@@ -57,7 +57,9 @@ function newpuzzle() {
     if (allnums.length === 0) {
         refresh_nums();
     }
-    num.textContent = (current_answer = allnums[Math.floor(Math.random() * allnums.length)]).toString(BASE).padStart(2, "0").toUpperCase();
+    const index = Math.floor(Math.random() * allnums.length);
+    num.textContent = (current_answer = allnums[index]).toString(BASE).padStart(2, "0").toUpperCase();
+    allnums.splice(index, 1);
     ttick.style.left = `${current_answer * 100 / MAX_ANS}%`;
 }
 newpuzzle();
